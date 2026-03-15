@@ -28,3 +28,4 @@ module flag_generator (
     // (A and Effective B have the SAME sign) AND (Result has a DIFFERENT sign than A)
     // XNOR is Equality, XOR is Inequality
     assign flag_overflow = ~(a7 ^ b_effective_sign) & (a7 ^ alu_result[7]);
+endmodule
