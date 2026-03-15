@@ -3,7 +3,7 @@
 // The instructions are ADD, SUB, NOR, AND, XOR, RSH (There are more but we will use this muc in this version)
 // Each instructions are half a word. The selected subset only operatos on r-type instructions
 // Length of each field is 4 bits: OPCODE, REGA, REGB, REGC. Each instructions in this subset uses flags 
-module mux_2to1_8bit(
+module mux_8to1_8bit(
 	input [2:0] S,
 	input [7:0] in_nop, in_hlt, in_add, in_sub, in_nor, in_and, in_xor, in_rsh, // 8bits outputs
 	output [7:0] Z
