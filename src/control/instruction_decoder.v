@@ -1,21 +1,29 @@
-// Decodes the raw opcode and returns ALU Control Signal
-// Output: nop: 000 hlt: 001 add: 010, sub: 011, nor: 100, and: 101, xor: 110, rsh 111
-// Other batch: ldi: 000 adi: 001 jmp: 010 brh: 011 cal: 100 ret: 101 lod: 110 str: 111
-`timescale 1ps/1ps
-
-// Opcode: 4bits nop: 0000 halt: 0001 add: 0010, sub: 0011, nor: 0100, and: 0101, xor: 0110, rsh: 0111
-// Other batch LDI: 1000 ADI: 1001 JMP: 1010 BRH: 1011 CAL: 1100 RET: 1101 LOD: 1110 STR: 1111
+`timescale 1ns/1ps
 module instruction_decoder(
-    input [3:0] OPCODE,
-    output [2:0] ALUControSignal
+    input [15:0] instruction,
+    output [2:0] opcode_output,
+    output [3:0] field1, field2, field3, 
+    output [2:0] instruction_type
 );
-// First input determines which ALU to use. A=0 First, ALU A=1 second ALU
-// İlk değerelr
-wire A = OPCODE[3];
-wire B = OPCODE[2];
-wire C = OPCODE[1];
-wire D = OPCODE[0];
+    wire [3:0] opcode = instruction[15:12];
+    wire [2:0] parsed_opcode; 
+    wire [2:0] type_string;   
 
-assign ALUControSignal = {B,C,D};
+    // Örnek isimleri eklendi ve portlar kendi modüllerine göre düzeltildi
+    type_decoder td_inst (
+        .OPCODE(opcode),
+        .TYPE(type_string)        
+    );
+
+    opcode_decoder od_inst (
+        .OPCODE(opcode),
+        .ALUControSignal(parsed_opcode)
+    );
+
+    assign opcode_output = parsed_opcode;
+    assign field1 = instruction[11:8];  
+    assign field2 = instruction[7:4];
+    assign field3 = instruction[3:0];
+    assign instruction_type = type_string; 
+
 endmodule
-// NEXT STEP mux'u buna göre güncelle. MSB checker ekle ve diğer mux ile decoder'i yaz
