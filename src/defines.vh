@@ -30,6 +30,13 @@
 `define OPCODE_LOD 4'b1110 // Memory Load
 `define OPCODE_STR 4'b1111 // Memory Store
 
+// --- Instruction Types ---
+`define TYPE_N 3'b000
+`define TYPE_R 3'b001
+`define TYPE_I 3'b010
+`define TYPE_D 3'b011
+`define TYPE_A 3'b100
+
 // --- Register addresses (4 bit) ---
 `define REG_R0 4'b0000
 `define REG_R1 4'b0001
@@ -51,5 +58,7 @@
 // --- ALU Flags (Flag Indexes) ---
 `define FLAG_Z 0 // Zero Flag Index
 `define FLAG_C 1 // Carry Flag Index
+`define FLAG_N 2 // Negative Flag Index
+`define FLAG_V 3 // Overflow Flag Index
 
 `endif
