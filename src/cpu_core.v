@@ -21,6 +21,7 @@ module cpu_core (
     wire alu_src_b;
     wire mem_to_reg;
     wire pc_src;
+    wire is_hlt;
 
     // Data & Address Routing Busses
     wire [3:0] reg_addr_a;
@@ -78,7 +79,7 @@ module cpu_core (
     program_counter pc_inst (
         .clk(clk),
         .rst(rst),
-        .pc_we(1'b1), // Always advancing until halted in future updates
+        .pc_we(~is_hlt), // Stops if Halt signal comes from Dispatcher
         .next_pc(pc_next),
         .current_pc(pc_current)
     );
@@ -103,7 +104,8 @@ module cpu_core (
         .reg_addr_a(reg_addr_a),
         .reg_addr_b(reg_addr_b),
         .reg_addr_dest(reg_addr_dest),
-        .imm_val(imm_val)
+        .imm_val(imm_val),
+        .is_hlt(is_hlt)
     );
 
     // Register File
