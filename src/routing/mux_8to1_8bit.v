@@ -1,4 +1,4 @@
-`timescale 1ps/1ps
+`timescale 1ns/1ps
 // This multiplexer is a tool for a basic ALU. 
 // The instructions are ADD, SUB, NOR, AND, XOR, RSH (There are more but we will use this muc in this version)
 // Each instructions are half a word. The selected subset only operatos on r-type instructions

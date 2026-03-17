@@ -1,4 +1,4 @@
-`timescale 1ps/1ps
+`timescale 1ns / 1ps
 
 module alu(
     input wire [2:0] parsed_opcode,

@@ -3,3 +3,4 @@ build/
 *.vvp
 *.out
 /tools/rom_builder/target
+src/instruction_memory.v

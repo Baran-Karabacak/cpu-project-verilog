@@ -84,7 +84,7 @@ module register_file (
         ({8{~|(read_addr_a ^ 4'b1110)}} & reg_out[14]) |
         ({8{~|(read_addr_a ^ 4'b1111)}} & reg_out[15]);
 
-    assign read_data_a =
+    assign read_data_b =
         ({8{~|(read_addr_b ^ 4'b0000)}} & reg_out[0]) |
         ({8{~|(read_addr_b ^ 4'b0001)}} & reg_out[1]) |
         ({8{~|(read_addr_b ^ 4'b0010)}} & reg_out[2]) |
