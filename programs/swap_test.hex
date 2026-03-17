@@ -1,0 +1,8 @@
+// Variable swap without temp variable
+
+812A                 // LDI R1, 42
+8211                 // LDI R2, 17
+6112                 // XOR R1, R1, R2
+6212                 // XOR R2, R1, R2
+6112                 // XOR R1, R1, R2
+1000                 // HLT

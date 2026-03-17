@@ -1,0 +1,8 @@
+// Mean value
+// Division is not implemented yet. For now, we use a right shift to divide by 2.
+
+8114                 // LDI R1, 20
+820A                 // LDI R2, 10
+2312                 // ADD R3, R1, R2
+7403                 // RSH R4, R0, R3
+1000                 // HLT

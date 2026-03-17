@@ -61,5 +61,7 @@ wave: run
 clean:
 	@echo "Cleaning Build Directory"
 	@rm -rf $(BUILD_DIR)
+	@echo "Cleaning Auto-Generated ROM File..."
+	@rm -f $(ROM_FILE)
 	@echo "Cleaning Rust Target Directory"
 	@cd $(TOOLS_DIR) && cargo clean
