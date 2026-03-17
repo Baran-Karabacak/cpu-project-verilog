@@ -98,7 +98,7 @@ Komutlar: `JMP`, `BRH`, `CAL`
 | `1110` | `LOD` | Bellekten yükle | rA, rB, ofset | Hayır | `B ← Bellek[A + ofset]` |
 | `1111` | `STR` | Belleğe depola | rA, rB, ofset | Hayır | `Bellek[A + ofset] ← B` |
 
-### Sahte Komutlar
+<!-- ### Sahte Komutlar
 
 Bunlar, temel komutlara dönüştürülen derleyici kolaylıklarıdır:
 
@@ -112,9 +112,9 @@ Bunlar, temel komutlara dönüştürülen derleyici kolaylıklarıdır:
 | `NOT` | `NOT A C` | `NOR A r0 C` | `C ← !A` |
 | `NEG` | `NEG A C` | `SUB r0 A C` | `C ← 0 - A` |
 
----
+--- -->
 
-## Bellek Eşlemeli G/Ç
+<!-- ## Bellek Eşlemeli G/Ç
 
 Veri belleğindeki 240–255 arası adresler donanım G/Ç'sine ayrılmıştır:
 
@@ -144,7 +144,7 @@ Veri belleğindeki 240–255 arası adresler donanım G/Ç'sine ayrılmıştır:
 - Giriş denetleyicisi (8 düğme)
 - LFSR tabanlı rastgele sayı üreteci
 
----
+--- -->
 
 ## Proje Yapısı
 
