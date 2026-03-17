@@ -22,6 +22,7 @@ module cpu_core (
     wire mem_to_reg;
     wire pc_src;
     wire is_hlt;
+    wire load_imm;
 
     // Data & Address Routing Busses
     wire [3:0] reg_addr_a;
@@ -54,7 +55,8 @@ module cpu_core (
     // Writeback MUX: Decides between ALU result and Data Memory
     assign reg_write_data = 
                     ({8{mem_to_reg}}  & data_memory_read) | 
-                    ({8{~mem_to_reg}} & alu_result);
+                    ({8{load_imm}}    & imm_val) |
+                    ({8{~mem_to_reg & ~load_imm}} & alu_result);
 
     // Program Counter Logic: Adder for PC+1 and MUX for Branching
     wire [15:0] pc_plus_one;
@@ -105,7 +107,8 @@ module cpu_core (
         .reg_addr_b(reg_addr_b),
         .reg_addr_dest(reg_addr_dest),
         .imm_val(imm_val),
-        .is_hlt(is_hlt)
+        .is_hlt(is_hlt),
+        .load_imm(load_imm)
     );
 
     // Register File
@@ -121,6 +124,8 @@ module cpu_core (
         .read_data_b(reg_data_b)    
     );
 
+
+
     // ALU
     alu alu_inst (
         .parsed_opcode(alu_op),
@@ -130,7 +135,7 @@ module cpu_core (
         .carry_out(alu_raw_carry)
     );
 
-    wire is_sub_signal = ~alu_op[2] & alu_op[1] & alu_op[0]
+    wire is_sub_signal = ~alu_op[2] & alu_op[1] & alu_op[0];
 
     flag_generator flag_unit (
         .alu_result(alu_result),

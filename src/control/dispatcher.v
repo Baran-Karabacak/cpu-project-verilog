@@ -17,7 +17,8 @@ module dispatcher (
     output wire [3:0] reg_addr_b, // Source Register 2
     output wire [3:0] reg_addr_dest, // Destination Register
     output wire [7:0] imm_val, // 8-bit Immediate Data payload
-    output wire is_hlt // 1 if Opcode is Halt
+    output wire is_hlt, // 1 if Opcode is Halt
+    output wire load_imm // 1: Bypass ALU and load immediate directly
 );
 
     // --- Instruction Decoding ---
@@ -113,10 +114,12 @@ module dispatcher (
     assign pc_src = is_jmp | (is_brh & is_condition_met);
 
     // Halt
-    wire is_hlt = ~(raw_opcode[3] ^ `OPCODE_HLT[3]) &
+    assign is_hlt = ~(raw_opcode[3] ^ `OPCODE_HLT[3]) &
                   ~(raw_opcode[2] ^ `OPCODE_HLT[2]) &
                   ~(raw_opcode[1] ^ `OPCODE_HLT[1]) &
                   ~(raw_opcode[0] ^ `OPCODE_HLT[0]);
+
+    assign load_imm = raw_opcode[3] & ~raw_opcode[2] & ~raw_opcode[1] & ~raw_opcode[0];
 
 
 
