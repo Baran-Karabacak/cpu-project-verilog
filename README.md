@@ -215,7 +215,7 @@ Programs are written as hex files. Each line is one 16-bit instruction (up to 4 
 // Load the value 3 into r2
 8203    // LDI r2, 3
 
-// Add r1 + r2 → r3
+// Add r2 + r3 → r1
 2123    // ADD r1 r2 r3
 
 // Halt

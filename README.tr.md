@@ -220,7 +220,7 @@ Programlar hex dosyaları olarak yazılır. Her satır bir 16-bit komuttur (en f
 // r2'ye 3 değerini yükle
 8203    // LDI r2, 3
 
-// r1 + r2 → r3
+// r2 + r3 → r1
 2123    // ADD r1 r2 r3
 
 // Dur
