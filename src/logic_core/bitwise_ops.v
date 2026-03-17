@@ -28,7 +28,7 @@ module op_rsh(
     input  [7:0] in_C,
     output [7:0] out_A
 );
-    assign out_A = {1'b0, in_B[7:1]};
+    assign out_A = {1'b0, in_C[7:1]};
 endmodule
 
 

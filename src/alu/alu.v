@@ -1,16 +1,13 @@
 `timescale 1ps/1ps
 
 module alu(
-    input [2:0] parsed_opcode,
-    input [7:0] in_B, in_C,
-    output [7:0] out_A,
-    output carry_add, carry_sub
+    input wire [2:0] parsed_opcode,
+    input wire [7:0] in_B, in_C,
+    output wire [7:0] out_A,
+    output wire carry_out
 );
-    // Constants
-    wire wire_zero = 1'b0;
-    wire wire_one  = 1'b1;
     // Module result carriers
-    wire [7:0] out_nop, out_hlt, out_add, out_sub;
+    wire [7:0] out_nop, out_hlt, out_add_sub;
     wire [7:0] out_nor, out_and, out_xor, out_rsh;
  
     op_nop ins_nop (out_nop);
@@ -20,27 +17,23 @@ module alu(
     op_xor ins_xor (in_B, in_C, out_xor); //FLAG
     op_rsh ins_rsh (in_C, out_rsh);
 
-    add_sub_8bit op_add (
+    // parsed_opcode == 3'b011
+    wire is_sub_op = ~parsed_opcode[2] & parsed_opcode[1] & parsed_opcode[0];
+
+    add_sub_8bit math_core (
         .operand_a(in_B),
         .operand_b(in_C),
-        .is_sub(1'b0),
-        .result(out_add),
-        .carry_out(carry_add)
-    ); //FLAG
-    add_sub_8bit op_sub (
-        .operand_a(in_B),
-        .operand_b(in_C),
-        .is_sub(1'b1),
-        .result(out_sub),
-        .carry_out(carry_sub)
-    ); //FLAG
+        .is_sub(is_sub_op),
+        .result(out_add_sub),
+        .carry_out(carry_out)
+    ); // FLAG
 
     mux_8to1_8bit result (
         .S(parsed_opcode),
 	    .in_nop(out_nop), 
         .in_hlt(out_hlt), 
-        .in_add(out_add), 
-        .in_sub(out_sub), 
+        .in_add(out_add_sub), 
+        .in_sub(out_add_sub), 
         .in_nor(out_nor), 
         .in_and(out_and), 
         .in_xor(out_xor), 

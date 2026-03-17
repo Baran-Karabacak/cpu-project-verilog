@@ -100,7 +100,7 @@ Instructions: `JMP`, `BRH`, `CAL`
 | `1110` | `LOD` | Load from memory | rA, rB, offset | No | `B ← Mem[A + offset]` |
 | `1111` | `STR` | Store to memory | rA, rB, offset | No | `Mem[A + offset] ← B` |
 
-### Pseudo-Instructions
+<!-- ### Pseudo-Instructions
 
 These are assembler conveniences that expand to core instructions:
 
@@ -114,9 +114,9 @@ These are assembler conveniences that expand to core instructions:
 | `NOT` | `NOT A C` | `NOR A r0 C` | `C ← !A` |
 | `NEG` | `NEG A C` | `SUB r0 A C` | `C ← 0 - A` |
 
----
+--- -->
 
-## Memory-Mapped I/O
+<!-- ## Memory-Mapped I/O
 
 Addresses 240–255 in data memory are reserved for hardware I/O:
 
@@ -139,7 +139,7 @@ Addresses 240–255 in data memory are reserved for hardware I/O:
 | 254 | Read  | RNG | Load a random 8-bit number |
 | 255 | Read  | Controller Input | Read controller state (Start, Select, A, B, ↑↓←→) |
 
----
+--- -->
 
 ## Project Structure
 
