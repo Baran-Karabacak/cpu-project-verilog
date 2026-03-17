@@ -55,15 +55,8 @@ module dispatcher (
     wire is_opcode_str; // Store
 
     // ALU Control : Awake only for Type I and Type R instructions
-    assign is_type_r = 
-        ~(inst_type[2] ^ `TYPE_R[2]) &
-        ~(inst_type[1] ^ `TYPE_R[1]) &
-        ~(inst_type[0] ^ `TYPE_R[0]);
-
-    assign is_type_i = 
-        ~(inst_type[2] ^ `TYPE_I[2]) &
-        ~(inst_type[1] ^ `TYPE_I[1]) &
-        ~(inst_type[0] ^ `TYPE_I[0]);
+    assign is_type_r = ~|(inst_type ^ `TYPE_R);
+    assign is_type_i = ~|(inst_type ^ `TYPE_I);
 
     assign alu_enable = is_type_r | is_type_i;
 
@@ -71,17 +64,9 @@ module dispatcher (
     assign alu_op = decoded_opcode;
 
     // ALU Source B: If Type I (Immediate Math) or Memory Ops, route the Immediate Wire
-    assign is_opcode_lod = 
-        ~(raw_opcode[3] ^ `OPCODE_LOD[3]) &
-        ~(raw_opcode[2] ^ `OPCODE_LOD[2]) &
-        ~(raw_opcode[1] ^ `OPCODE_LOD[1]) &
-        ~(raw_opcode[0] ^ `OPCODE_LOD[0]);
+    assign is_opcode_lod = ~|(raw_opcode ^ `OPCODE_LOD);
     
-    assign is_opcode_str = 
-        ~(raw_opcode[3] ^ `OPCODE_STR[3]) &
-        ~(raw_opcode[2] ^ `OPCODE_STR[2]) &
-        ~(raw_opcode[1] ^ `OPCODE_STR[1]) &
-        ~(raw_opcode[0] ^ `OPCODE_STR[0]);
+    assign is_opcode_str = ~|(raw_opcode ^ `OPCODE_STR);
         
     assign alu_src_b = is_type_i | is_opcode_lod | is_opcode_str;
 
@@ -95,18 +80,8 @@ module dispatcher (
     assign mem_to_reg = is_opcode_lod;
 
     // --- Control Flow ---
-    wire is_jump = 
-        ~(raw_opcode[3] ^ `OPCODE_JMP[3]) &
-        ~(raw_opcode[2] ^ `OPCODE_JMP[2]) &
-        ~(raw_opcode[1] ^ `OPCODE_JMP[1]) &
-        ~(raw_opcode[0] ^ `OPCODE_JMP[0]);
-
-    wire is_brh = 
-        ~(raw_opcode[3] ^ `OPCODE_BRH[3]) &
-        ~(raw_opcode[2] ^ `OPCODE_BRH[2]) &
-        ~(raw_opcode[1] ^ `OPCODE_BRH[1]) &
-        ~(raw_opcode[0] ^ `OPCODE_BRH[0]);
-
+    wire is_jmp = ~|(raw_opcode ^ `OPCODE_JMP);
+    wire is_brh = ~|(raw_opcode ^ `OPCODE_BRH);
 
     wire is_condition_met = alu_flags[`FLAG_Z];
 
@@ -114,10 +89,7 @@ module dispatcher (
     assign pc_src = is_jmp | (is_brh & is_condition_met);
 
     // Halt
-    assign is_hlt = ~(raw_opcode[3] ^ `OPCODE_HLT[3]) &
-                  ~(raw_opcode[2] ^ `OPCODE_HLT[2]) &
-                  ~(raw_opcode[1] ^ `OPCODE_HLT[1]) &
-                  ~(raw_opcode[0] ^ `OPCODE_HLT[0]);
+    assign is_hlt = ~|(raw_opcode ^ `OPCODE_HLT);
 
     assign load_imm = raw_opcode[3] & ~raw_opcode[2] & ~raw_opcode[1] & ~raw_opcode[0];
 

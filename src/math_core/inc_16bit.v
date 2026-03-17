@@ -3,8 +3,8 @@
 
 // 16 bit incrementer
 module inc_16bit (
-    input wire [15:0] in_val;
-    output wire [15:0] out_val;
+    input wire [15:0] in_val,
+    output wire [15:0] out_val
 );
 
     wire [15:0] c; // Carry Chain
@@ -57,3 +57,5 @@ module inc_16bit (
 
     // No need for last bit
     assign out_val[15] = in_val[15] ^ c[14];
+
+endmodule

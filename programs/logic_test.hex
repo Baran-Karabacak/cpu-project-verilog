@@ -1,0 +1,6 @@
+81FF                 // LDI R1, 255
+820F                 // LDI R2, 15
+5312                 // AND R3, R1, R2
+6411                 // XOR R4, R1, R1
+7520                 // RSH R5, R2
+1000                 // HLT (Sistemi durdur)

@@ -13,8 +13,10 @@ TARGET ?= cpu_core_tb
 TB_FILE = $(TB_DIR)/$(TARGET).v
 VVP_FILE = $(BUILD_DIR)/$(TARGET).vvp
 VCD_FILE = $(BUILD_DIR)/$(TARGET).vcd
-HEX_FILE = $(PROG_DIR)/input.hex
+PROG ?= input
+HEX_FILE = $(PROG_DIR)/$(PROG).hex
 ROM_FILE = $(SRC_DIR)/instruction_memory.v
+SRC_FILES = $(shell find $(SRC_DIR) -type f -name '*.v')
 
 CFLAGS = -I $(SRC_DIR) -Wall
 
@@ -42,9 +44,9 @@ generate_rom: check_hex
 	@cd $(TOOLS_DIR) && cargo run --release --quiet -- ../../$(HEX_FILE) ../../$(ROM_FILE)
 
 # Compiles verilog (Now depends on generate_rom)
-compile: generate_rom
-	@echo "Compiling: $(TB_FILE)"
-	$(CC) $(CFLAGS) -o $(VVP_FILE) $(TB_FILE)
+compile: generate_rom build_dir
+	@echo "Compiling Testbench and all Hardware Modules..."
+	$(CC) $(CFLAGS) -o $(VVP_FILE) $(TB_FILE) $(SRC_FILES)
 
 # Runs the simulation
 run: compile

@@ -28,3 +28,5 @@ module cpu_register #(
     always @(posedge clk) begin
         data_out <= next_state;
     end
+
+endmodule
