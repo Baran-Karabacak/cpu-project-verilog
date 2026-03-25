@@ -83,12 +83,12 @@ Komutlar: `JMP`, `BRH`, `CAL`
 |-------|------------|----------|------------|------------------|-----------|
 | `0000` | `NOP` | İşlem yok | — | Hayır | — |
 | `0001` | `HLT` | Yürütmeyi durdur | — | Hayır | — |
-| `0010` | `ADD` | Toplama | rA, rB → rC | Evet | `C ← A + B` |
-| `0011` | `SUB` | Çıkarma | rA, rB → rC | Evet | `C ← A - B` |
-| `0100` | `NOR` | Bit düzeyinde NOR | rA, rB → rC | Evet | `C ← !(A \| B)` |
-| `0101` | `AND` | Bit düzeyinde AND | rA, rB → rC | Evet | `C ← A & B` |
-| `0110` | `XOR` | Bit düzeyinde XOR | rA, rB → rC | Evet | `C ← A ^ B` |
-| `0111` | `RSH` | Sağa kaydır (mantıksal) | rA → rC | Hayır | `C ← A >> 1` |
+| `0010` | `ADD` | Toplama | rA, rB → rC | Evet | `A ← B + C` |
+| `0011` | `SUB` | Çıkarma | rA, rB → rC | Evet | `A ← B - C` |
+| `0100` | `NOR` | Bit düzeyinde NOR | rA, rB → rC | Evet | `A ← !(B \| C)` |
+| `0101` | `AND` | Bit düzeyinde AND | rA, rB → rC | Evet | `A ← B & C` |
+| `0110` | `XOR` | Bit düzeyinde XOR | rA, rB → rC | Evet | `A ← B ^ C` |
+| `0111` | `RSH` | Sağa kaydır (mantıksal) | rA → rC | Hayır | `A ← C >> 1` |
 | `1000` | `LDI` | Anlık değer yükle | rA, imm8 | Hayır | `A ← imm` |
 | `1001` | `ADI` | Anlık değer topla | rA, imm8 | Evet | `A ← A + imm` |
 | `1010` | `JMP` | Koşulsuz atla | adres | Hayır | `PC ← adres` |
@@ -104,13 +104,13 @@ Bunlar, temel komutlara dönüştürülen derleyici kolaylıklarıdır:
 
 | Anımsatıcı | Gösterim | Açılımı | Sözde Kod |
 |------------|----------|---------|-----------|
-| `CMP` | `CMP A B` | `SUB A B r0` | `A - B` (bayrakları günceller) |
-| `MOV` | `MOV A C` | `ADD A r0 C` | `C ← A` |
-| `LSH` | `LSH A C` | `ADD A A C` | `C ← A << 1` |
+| `CMP` | `CMP A B` | `SUB r0 A B` | `A - B` (bayrakları günceller) |
+| `MOV` | `MOV A C` | `ADD A r0 C` | `A ← C` |
+| `LSH` | `LSH A C` | `ADD A C C` | `A ← C << 1` |
 | `INC` | `INC A` | `ADI A 1` | `A ← A + 1` |
 | `DEC` | `DEC A` | `ADI A -1` | `A ← A - 1` |
-| `NOT` | `NOT A C` | `NOR A r0 C` | `C ← !A` |
-| `NEG` | `NEG A C` | `SUB r0 A C` | `C ← 0 - A` |
+| `NOT` | `NOT A C` | `NOR A r0 C` | `A ← !C` |
+| `NEG` | `NEG A C` | `SUB A r0 C` | `A ← 0 - C` |
 
 --- -->
 

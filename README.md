@@ -85,12 +85,12 @@ Instructions: `JMP`, `BRH`, `CAL`
 |--------|----------|-------------|----------|------------|------------|
 | `0000` | `NOP` | No operation | — | No | — |
 | `0001` | `HLT` | Halt execution | — | No | — |
-| `0010` | `ADD` | Addition | rA, rB → rC | Yes | `C ← A + B` |
-| `0011` | `SUB` | Subtraction | rA, rB → rC | Yes | `C ← A - B` |
-| `0100` | `NOR` | Bitwise NOR | rA, rB → rC | Yes | `C ← !(A \| B)` |
-| `0101` | `AND` | Bitwise AND | rA, rB → rC | Yes | `C ← A & B` |
-| `0110` | `XOR` | Bitwise XOR | rA, rB → rC | Yes | `C ← A ^ B` |
-| `0111` | `RSH` | Right shift (logical) | rA → rC | No | `C ← A >> 1` |
+| `0010` | `ADD` | Addition | rA, rB → rC | Yes | `A ← B + C` |
+| `0011` | `SUB` | Subtraction | rA, rB → rC | Yes | `A ← B - C` |
+| `0100` | `NOR` | Bitwise NOR | rA, rB → rC | Yes | `A ← !(B \| C)` |
+| `0101` | `AND` | Bitwise AND | rA, rB → rC | Yes | `A ← B & C` |
+| `0110` | `XOR` | Bitwise XOR | rA, rB → rC | Yes | `A ← B ^ C` |
+| `0111` | `RSH` | Right shift (logical) | rA → rC | No | `A ← C >> 1` |
 | `1000` | `LDI` | Load immediate | rA, imm8 | No | `A ← imm` |
 | `1001` | `ADI` | Add immediate | rA, imm8 | Yes | `A ← A + imm` |
 | `1010` | `JMP` | Unconditional jump | addr | No | `PC ← addr` |
@@ -106,12 +106,12 @@ These are assembler conveniences that expand to core instructions:
 
 | Mnemonic | Notation | Expands to | Pseudocode |
 |----------|----------|------------|------------|
-| `CMP` | `CMP A B` | `SUB A B r0` | `A - B` (sets flags) |
-| `MOV` | `MOV A C` | `ADD A r0 C` | `C ← A` |
-| `LSH` | `LSH A C` | `ADD A A C` | `C ← A << 1` |
+| `CMP` | `CMP A B` | `SUB r0 A B` | `A - B` (sets flags) |
+| `MOV` | `MOV A C` | `ADD A r0 C` | `A ← C` |
+| `LSH` | `LSH A C` | `ADD A C C` | `A ← C << 1` |
 | `INC` | `INC A` | `ADI A 1` | `A ← A + 1` |
 | `DEC` | `DEC A` | `ADI A -1` | `A ← A - 1` |
-| `NOT` | `NOT A C` | `NOR A r0 C` | `C ← !A` |
+| `NOT` | `NOT A C` | `NOR A r0 C` | `A ← !C` |
 | `NEG` | `NEG A C` | `SUB r0 A C` | `C ← 0 - A` |
 
 --- -->
