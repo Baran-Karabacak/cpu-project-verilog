@@ -42,8 +42,17 @@ module cpu_core (
     wire flag_z, flag_c, flag_n, flag_v;
     wire [3:0] alu_flags_bus;
 
-    // Data Memory Placeholder (For future versions)
-    wire [7:0] data_memory_read = 8'b00000000;
+    // Data Memory
+    wire [7:0] data_memory_read;
+    
+    data_memory ram_inst (
+        .clk(clk),
+        .rst(rst),
+        .we(mem_we),
+        .addr(alu_result),
+        .data_in(reg_data_b),
+        .data_out(data_memory_read)
+    );
 
     // --- Hardware Routing Multiplexers ---
 
@@ -72,7 +81,31 @@ module cpu_core (
 
     // Bundling individual flags into the 4-bit status bus for the Dispatcher
     // Order strictly follows defines.vh: {V, N, C, Z}
-    assign alu_flags_bus = {flag_v, flag_n, flag_c, flag_z};
+    wire [3:0] raw_flags = {flag_v, flag_n, flag_c, flag_z};
+    wire [3:0] saved_flags;
+
+    // README'ye göre Bayrakları değiştiren komutlar: ADD, SUB, NOR, AND, XOR, ADI
+    wire op_is_add = ~|(instruction[15:12] ^ `OPCODE_ADD);
+    wire op_is_sub = ~|(instruction[15:12] ^ `OPCODE_SUB);
+    wire op_is_nor = ~|(instruction[15:12] ^ `OPCODE_NOR);
+    wire op_is_and = ~|(instruction[15:12] ^ `OPCODE_AND);
+    wire op_is_xor = ~|(instruction[15:12] ^ `OPCODE_XOR);
+    wire op_is_adi = ~|(instruction[15:12] ^ `OPCODE_ADI);
+
+    // Write Enable: Sadece bu komutlar çalışırken bayrak kasasının kapağını aç!
+    wire flags_we = op_is_add | op_is_sub | op_is_nor | op_is_and | op_is_xor | op_is_adi;
+
+    // 4-Bit Bayrak Kayıtçısı
+    cpu_register #(.WIDTH(4)) status_register (
+        .clk(clk),
+        .rst(rst),
+        .we(flags_we),
+        .data_in(raw_flags),
+        .data_out(saved_flags)
+    );
+
+    // Dispatcher artık rüzgarda savrulan kabloları değil, kilitli kasayı okuyacak:
+    assign alu_flags_bus = saved_flags;
 
 
     // --- Hardware Instantiations ---
