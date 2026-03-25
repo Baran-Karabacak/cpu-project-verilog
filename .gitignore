@@ -5,3 +5,4 @@ build/
 /tools/rom_builder/target
 src/instruction_memory.v
 /tools/ram_builder/target
+/tools/virtual_screen/target
