@@ -8,6 +8,8 @@ module cpu_core (
 
     // --- Internal Busses ---
     
+    wire [15:0] pc_plus_one;
+    
     // Instruction & Program Counter Busses
     wire [15:0] pc_current;
     wire [15:0] pc_next;
@@ -20,7 +22,10 @@ module cpu_core (
     wire [2:0] alu_op;
     wire alu_src_b;
     wire mem_to_reg;
-    wire pc_src;
+    wire stack_push;
+    wire stack_pop;
+    wire [1:0] pc_src_mux;
+    wire [15:0] stack_data_out;
     wire is_hlt;
     wire load_imm;
 
@@ -53,6 +58,15 @@ module cpu_core (
         .data_in(reg_data_b),
         .data_out(data_memory_read)
     );
+    
+    hardware_stack call_stack (
+        .clk(clk),
+        .rst(rst),
+        .push(stack_push),
+        .pop(stack_pop),
+        .data_in(pc_plus_one),
+        .data_out(stack_data_out)
+    );
 
     // --- Hardware Routing Multiplexers ---
 
@@ -68,7 +82,6 @@ module cpu_core (
                     ({8{~mem_to_reg & ~load_imm}} & alu_result);
 
     // Program Counter Logic: Adder for PC+1 and MUX for Branching
-    wire [15:0] pc_plus_one;
     inc_16bit pc_incrementer (
         .in_val(pc_current),
         .out_val(pc_plus_one)
@@ -76,8 +89,10 @@ module cpu_core (
     wire [15:0] jump_target = {8'b00000000, imm_val};
 
     // PC Source MUX: 1 for Branch/Jump, 0 for Normal Execution
-    assign pc_next = ({16{pc_src}}  & jump_target) | 
-                     ({16{~pc_src}} & pc_plus_one);
+    assign pc_next =
+            ({16{~pc_src_mux[1] & ~pc_src_mux[0]}} & pc_plus_one) | 
+            ({16{~pc_src_mux[1] &  pc_src_mux[0]}} & jump_target) | 
+            ({16{ pc_src_mux[1] & ~pc_src_mux[0]}} & stack_data_out);
 
     // Bundling individual flags into the 4-bit status bus for the Dispatcher
     // Order strictly follows defines.vh: {V, N, C, Z}
@@ -135,7 +150,9 @@ module cpu_core (
         .alu_op(alu_op),
         .alu_src_b(alu_src_b),
         .mem_to_reg(mem_to_reg),
-        .pc_src(pc_src),
+        .stack_push(stack_push),
+        .stack_pop(stack_pop),
+        .pc_src_mux(pc_src_mux),
         .reg_addr_a(reg_addr_a),
         .reg_addr_b(reg_addr_b),
         .reg_addr_dest(reg_addr_dest),
