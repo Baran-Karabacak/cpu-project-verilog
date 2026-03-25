@@ -42,17 +42,19 @@ module cpu_core_tb();
     end
     
     // 6. Memory-Mapped I/O Exfiltration
-    integer io_log;
+    integer dashboard_log;
 
     initial begin
         #21;
-        io_log = $fopen("build/io_trace.csv", "w");
+        dashboard_log = $fopen("build/dashboard_trace.csv", "w");
     end
 
     always @(posedge clk) begin
         if (!rst && uut.mem_we && uut.alu_result >= 8'hF0) begin
             // Format: Address, Data
-            $fdisplay(io_log, "%d,%d", uut.alu_result, uut.reg_data_b);
+            $fdisplay(dashboard_log, "%d,%d", uut.alu_result, uut.reg_data_b);
+            
+            $fflush(dashboard_log);
         end
     end
 
