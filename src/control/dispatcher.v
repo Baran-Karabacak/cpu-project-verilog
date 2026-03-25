@@ -12,7 +12,9 @@ module dispatcher (
     output wire [2:0] alu_op, // 3-bit ALU operation selector
     output wire alu_src_b, // 0: Register B, 1: Immediate Value
     output wire mem_to_reg, // 0: ALU Result to Reg, 1: Memory to Reg
-    output wire pc_src, // 0: PC+1 (Normal Flow), 1: Branch/Jump
+    output wire stack_push, // Stack Push Signal
+    output wire stack_pop, // Stack Pop Signal
+    output wire [1:0] pc_src_mux, // 2-bit PC Mux
     output wire [3:0] reg_addr_a, // Source Register 1
     output wire [3:0] reg_addr_b, // Source Register 2
     output wire [3:0] reg_addr_dest, // Destination Register
@@ -49,49 +51,50 @@ module dispatcher (
     assign is_opcode_str = ~|(raw_opcode ^ `OPCODE_STR);
     assign is_type_d     = is_opcode_lod | is_opcode_str;
 
-    // --- Data Routing & Address Extraction (Pure MUX Gates) ---
-    // Dest Register MUX (LOD ise field2, değilse field1)
+    // --- Data Routing & Address Extraction ---
+    // Dest Register MUX (field2 if LOD, if not field1)
     assign reg_addr_dest = field1;
-        
-    // Port A MUX (D-Type ise field1, değilse field2)
+
+    // Port A MUX (field1 if Type D, if not field2)
     assign reg_addr_a = field2;
         
-    // Port B MUX (D-Type ise field2, değilse field3)
+    // Port B MUX (field2 if Type D, if not field3)
     assign reg_addr_b = ({4{is_opcode_str}} & field1) | 
                         ({4{~is_opcode_str}} & field3);
 
-    // Immediate Value MUX (D-Type ise 4 bit Offset, değilse field2+field3)
+    // Immediate Value MUX (4 bit Offset if Type D, if not field2+field3)
     assign imm_val = ({8{is_type_d}} & {4'b0000, field3}) | 
                      ({8{~is_type_d}} & {field2, field3});
 
 
     // --- Hardware Control ---
-    
     assign is_type_r = ~|(inst_type ^ `TYPE_R);
     assign is_type_i = ~|(inst_type ^ `TYPE_I);
 
-    // BUG FIX 1: ALU Enable -> D-Type komutlarda adres hesaplamak için uyanmak zorundadır!
+    // ALU Enable -> Active on Type D
     assign alu_enable = is_type_r | is_type_i | is_type_d;
 
-    // BUG FIX 2: ALU OP -> D-Type komutlarında (LOD/STR) adresi bulmak için ALU'ya zorla ADD (010) yaptırılır.
+    // ALU OP -> On Type D forces ALU to make add operation
     assign alu_op = ({3{is_type_d}} & 3'b010) | 
                     ({3{~is_type_d}} & decoded_opcode);
 
-    // ALU Source B: Type I (Immediate) ve Type D (Offset) için 1 olur.
+    // ALU Source B: Active on Type I and Type D
     assign alu_src_b = is_type_i | is_type_d;
 
-    // Register Write: Type R, Type I ve bellekten yükleme (LOD) anında aktif.
+    // Register Write: Active on Type I, Type R and LOD
     assign reg_we = is_type_r | is_type_i | is_opcode_lod;
 
-    // Memory Write: Sadece Store (STR) komutunda aktif.
+    // Memory Write: Only active on STR command
     assign mem_we = is_opcode_str;
 
-    // Memory to Reg: 1 ise RAM'den gelen veri, 0 ise ALU sonucu.
+    // Memory to Reg: If 1, then takes the data from RAM. Otherwise takes from ALU
     assign mem_to_reg = is_opcode_lod;
 
     // --- Control Flow ---
     wire is_jmp = ~|(raw_opcode ^ `OPCODE_JMP);
     wire is_brh = ~|(raw_opcode ^ `OPCODE_BRH);
+    wire is_cal = ~|(raw_opcode ^ `OPCODE_CAL);
+    wire is_ret = ~|(raw_opcode ^ `OPCODE_RET);
     
     wire [3:0] cond_field = instruction[11:8];
 
@@ -101,13 +104,20 @@ module dispatcher (
             ({1{~|(cond_field ^ 4'h2)}} & alu_flags[`FLAG_N]) |
             ({1{~|(cond_field ^ 4'h3)}} & alu_flags[`FLAG_V]);
 
-    // 1 forces Program Counter to intercept and jump
-    assign pc_src = is_jmp | (is_brh & is_condition_met);
+    // Stack Signals
+    assign stack_push = is_cal;
+    assign stack_pop  = is_ret;
+
+    // pc_src_mux = 00 -> (PC + 1
+    // pc_src_mux = 01 -> JMP, BRH, CAL
+    // pc_src_mux = 10 -> RET
+    assign pc_src_mux[0] = is_jmp | (is_brh & is_condition_met) | is_cal;
+    assign pc_src_mux[1] = is_ret;
 
     // Halt
     assign is_hlt = ~|(raw_opcode ^ `OPCODE_HLT);
 
-    // Load Immediate: Reduction NOR ile güvenli kontrol
+    // Load Immediate
     assign load_imm = ~|(raw_opcode ^ `OPCODE_LDI);
 
 endmodule
