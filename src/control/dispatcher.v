@@ -21,6 +21,13 @@ module dispatcher (
     output wire load_imm // 1: Bypass ALU and load immediate directly
 );
 
+    // --- Hardware Control Signals ---
+    wire is_type_r;
+    wire is_type_i;
+    wire is_type_d;
+    wire is_opcode_lod;
+    wire is_opcode_str;
+
     // --- Instruction Decoding ---
     wire [2:0] decoded_opcode;
     wire [3:0] field1, field2, field3;
@@ -35,55 +42,64 @@ module dispatcher (
         .instruction_type(inst_type)
     );
 
-    // Extracting the raw top 4 bits to make specific instruction routing easier
     wire [3:0] raw_opcode = instruction[15:12];
 
-    // --- Data Routing & Address Extraction
-    // Pure wire assignments. The datapath multiplexers will filter out the noise.
-    assign reg_addr_dest = field1; 
-    assign reg_addr_a = field2;
-    assign reg_addr_b = field3;
+    // --- Decoding Specific Opcodes (Reduction NOR for Gate-Level Safety) ---
+    assign is_opcode_lod = ~|(raw_opcode ^ `OPCODE_LOD);
+    assign is_opcode_str = ~|(raw_opcode ^ `OPCODE_STR);
+    assign is_type_d     = is_opcode_lod | is_opcode_str;
 
-    // Combining the lower 8 bits directly from the fields for immediate values
-    assign imm_val = {field2, field3};
+    // --- Data Routing & Address Extraction (Pure MUX Gates) ---
+    // Dest Register MUX (LOD ise field2, değilse field1)
+    assign reg_addr_dest = field1;
+        
+    // Port A MUX (D-Type ise field1, değilse field2)
+    assign reg_addr_a = field2;
+        
+    // Port B MUX (D-Type ise field2, değilse field3)
+    assign reg_addr_b = ({4{is_opcode_str}} & field1) | 
+                        ({4{~is_opcode_str}} & field3);
+
+    // Immediate Value MUX (D-Type ise 4 bit Offset, değilse field2+field3)
+    assign imm_val = ({8{is_type_d}} & {4'b0000, field3}) | 
+                     ({8{~is_type_d}} & {field2, field3});
+
 
     // --- Hardware Control ---
-    wire is_type_r;
-    wire is_type_i;
-
-    wire is_opcode_lod; // Load
-    wire is_opcode_str; // Store
-
-    // ALU Control : Awake only for Type I and Type R instructions
+    
     assign is_type_r = ~|(inst_type ^ `TYPE_R);
     assign is_type_i = ~|(inst_type ^ `TYPE_I);
 
-    assign alu_enable = is_type_r | is_type_i;
+    // BUG FIX 1: ALU Enable -> D-Type komutlarda adres hesaplamak için uyanmak zorundadır!
+    assign alu_enable = is_type_r | is_type_i | is_type_d;
 
-    // ALU OP: Direct passthrough from the decoder
-    assign alu_op = decoded_opcode;
+    // BUG FIX 2: ALU OP -> D-Type komutlarında (LOD/STR) adresi bulmak için ALU'ya zorla ADD (010) yaptırılır.
+    assign alu_op = ({3{is_type_d}} & 3'b010) | 
+                    ({3{~is_type_d}} & decoded_opcode);
 
-    // ALU Source B: If Type I (Immediate Math) or Memory Ops, route the Immediate Wire
-    assign is_opcode_lod = ~|(raw_opcode ^ `OPCODE_LOD);
-    
-    assign is_opcode_str = ~|(raw_opcode ^ `OPCODE_STR);
-        
-    assign alu_src_b = is_type_i | is_opcode_lod | is_opcode_str;
+    // ALU Source B: Type I (Immediate) ve Type D (Offset) için 1 olur.
+    assign alu_src_b = is_type_i | is_type_d;
 
-    // Register Write: Unlock the register file for Type R, Type I, and Load from Memory
+    // Register Write: Type R, Type I ve bellekten yükleme (LOD) anında aktif.
     assign reg_we = is_type_r | is_type_i | is_opcode_lod;
 
-    // Memory Write: Only unlock Data Memory when a Store instruction is active
+    // Memory Write: Sadece Store (STR) komutunda aktif.
     assign mem_we = is_opcode_str;
 
-    // Memory to Reg: 1 if loading from Data Memory, 0 if taking the ALU's calculated result
+    // Memory to Reg: 1 ise RAM'den gelen veri, 0 ise ALU sonucu.
     assign mem_to_reg = is_opcode_lod;
 
     // --- Control Flow ---
     wire is_jmp = ~|(raw_opcode ^ `OPCODE_JMP);
     wire is_brh = ~|(raw_opcode ^ `OPCODE_BRH);
+    
+    wire [3:0] cond_field = instruction[11:8];
 
-    wire is_condition_met = alu_flags[`FLAG_Z];
+    wire is_condition_met = 
+            ({1{~|(cond_field ^ 4'h0)}} & alu_flags[`FLAG_Z]) |
+            ({1{~|(cond_field ^ 4'h1)}} & alu_flags[`FLAG_C]) |
+            ({1{~|(cond_field ^ 4'h2)}} & alu_flags[`FLAG_N]) |
+            ({1{~|(cond_field ^ 4'h3)}} & alu_flags[`FLAG_V]);
 
     // 1 forces Program Counter to intercept and jump
     assign pc_src = is_jmp | (is_brh & is_condition_met);
@@ -91,8 +107,7 @@ module dispatcher (
     // Halt
     assign is_hlt = ~|(raw_opcode ^ `OPCODE_HLT);
 
-    assign load_imm = raw_opcode[3] & ~raw_opcode[2] & ~raw_opcode[1] & ~raw_opcode[0];
-
-
+    // Load Immediate: Reduction NOR ile güvenli kontrol
+    assign load_imm = ~|(raw_opcode ^ `OPCODE_LDI);
 
 endmodule
