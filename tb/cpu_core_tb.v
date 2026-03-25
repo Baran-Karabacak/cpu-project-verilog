@@ -34,7 +34,7 @@ module cpu_core_tb();
 
         // Let the CPU run for a sufficient amount of time (e.g., 1000 ns)
         // Adjust this time based on how long your hex program is.
-        #100000;
+        #1000;
 
         // Stop the simulation
         $display("INFO: Simulation Time Limit Reached. Shutting down.");
@@ -49,10 +49,9 @@ module cpu_core_tb();
         io_log = $fopen("build/io_trace.csv", "w");
     end
 
-    // Sadece Saatin Yükselen Kenarında (RAM'e yazma anı) ve Adres >= 240 ise
     always @(posedge clk) begin
         if (!rst && uut.mem_we && uut.alu_result >= 8'hF0) begin
-            // Format: Adres, Veri (Örnek: 240, 15 -> Pixel X = 15)
+            // Format: Address, Data
             $fdisplay(io_log, "%d,%d", uut.alu_result, uut.reg_data_b);
         end
     end
