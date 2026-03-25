@@ -12,7 +12,7 @@ module inc_16bit (
     assign out_val[0] = ~in_val[0];
     assign c[0]       = in_val[0];
 
-    // Bit 1 - 15: Half-Adder Zinciri (Sum = A XOR Carry, Next_Carry = A AND Carry)
+    // Bit 1 - 15: Half-Adder Chain (Sum = A XOR Carry, Next_Carry = A AND Carry)
     assign out_val[1] = in_val[1] ^ c[0];
     assign c[1] = in_val[1] & c[0];
 

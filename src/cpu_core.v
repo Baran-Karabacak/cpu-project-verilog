@@ -99,7 +99,6 @@ module cpu_core (
     wire [3:0] raw_flags = {flag_v, flag_n, flag_c, flag_z};
     wire [3:0] saved_flags;
 
-    // README'ye göre Bayrakları değiştiren komutlar: ADD, SUB, NOR, AND, XOR, ADI
     wire op_is_add = ~|(instruction[15:12] ^ `OPCODE_ADD);
     wire op_is_sub = ~|(instruction[15:12] ^ `OPCODE_SUB);
     wire op_is_nor = ~|(instruction[15:12] ^ `OPCODE_NOR);
@@ -107,10 +106,9 @@ module cpu_core (
     wire op_is_xor = ~|(instruction[15:12] ^ `OPCODE_XOR);
     wire op_is_adi = ~|(instruction[15:12] ^ `OPCODE_ADI);
 
-    // Write Enable: Sadece bu komutlar çalışırken bayrak kasasının kapağını aç!
+    // Write Enable
     wire flags_we = op_is_add | op_is_sub | op_is_nor | op_is_and | op_is_xor | op_is_adi;
 
-    // 4-Bit Bayrak Kayıtçısı
     cpu_register #(.WIDTH(4)) status_register (
         .clk(clk),
         .rst(rst),
@@ -119,7 +117,6 @@ module cpu_core (
         .data_out(saved_flags)
     );
 
-    // Dispatcher artık rüzgarda savrulan kabloları değil, kilitli kasayı okuyacak:
     assign alu_flags_bus = saved_flags;
 
 

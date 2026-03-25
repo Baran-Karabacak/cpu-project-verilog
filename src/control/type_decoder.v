@@ -11,17 +11,16 @@ module type_decoder(
 // d-type: 011
 // a-type: 100
 // 101, 110, 111 Not Aplicable
-// İlk değerler
 wire A = OPCODE[3];
 wire B = OPCODE[2];
 wire C = OPCODE[1];
 wire D = OPCODE[0];
-// Not'lar
+
 wire Anot = ~A;
 wire Bnot = ~B;
 wire Cnot = ~C;
 wire Dnot = ~D;
-// Ara değerler
+
 wire BnotC = Bnot & C;
 wire BorC = B | C;
 wire ABC = A & B & C;
@@ -29,7 +28,7 @@ wire BCnotDnot = B & Cnot & Dnot;
 wire ABnotCnot = A & Bnot & Cnot;
 wire Xcomplex = BCnotDnot | BnotC;
 wire Zcomplex = Anot & BorC;
-// Sonuç
+// Result
 wire x = A & Xcomplex;
 wire y = ABC | ABnotCnot;
 wire z = ABC | Zcomplex; 

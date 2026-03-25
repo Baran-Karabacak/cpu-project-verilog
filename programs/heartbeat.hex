@@ -1,10 +1,9 @@
-// KOMUTLAR          // AÇIKLAMA VE FİZİKSEL SONUÇ
-8564                 // LDI R5, 100 (LUB! Kalp kasıldı, R5 = 100 / Hex: 0x64)
-7505                 // RSH R5, R0, R5 (DUB! Basınç donanımsal olarak yarıya düştü, R5 = 50 / Hex: 0x32)
-6555                 // XOR R5, R5, R5 (DİNLENME! Voltaj sıfırlandı, R5 = 0)
-0000                 // NOP (1 Saat Vuruşu Boşluk)
-0000                 // NOP (1 Saat Vuruşu Boşluk)
-8564                 // LDI R5, 100 (LUB! İkinci atış)
-7505                 // RSH R5, R0, R5 (DUB!)
-6555                 // XOR R5, R5, R5 (DİNLENME!)
-1000                 // HLT (Sistemi dondur)
+8564                 // LDI R5, 100
+7505                 // RSH R5, R0, R5
+6555                 // XOR R5, R5, R5
+0000                 // NOP
+0000                 // NOP
+8564                 // LDI R5, 100
+7505                 // RSH R5, R0, R5
+6555                 // XOR R5, R5, R5
+1000                 // HLT

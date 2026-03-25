@@ -1,19 +1,11 @@
-// ==========================================
-// 1. INIT (BAŞLANGIÇ DURUMU)
-// ==========================================
-8500    // [0000] LDI R5, 0     (Her zaman sıfır)
-8102    // [0001] LDI R1, 2   (Başlangıç X=15)
-820A    // [0002] LDI R2, 10    (Başlangıç Y=15)
-8301    // [0003] LDI R3, 1     (Başlangıç Vx=1)
-8401    // [0004] LDI R4, 1     (Başlangıç Vy=1)
-8901    // [0005] LDI R9, 1     (Sabit 1)
-8A1F    // [0006] LDI R10, 31   (Sabit 31, duvar sınırı)
+8500    // [0000] LDI R5, 0     (Always 0)
+8102    // [0001] LDI R1, 2     (Start X=2)
+820A    // [0002] LDI R2, 10    (Start Y=10)
+8301    // [0003] LDI R3, 1     (Start Vx=1)
+8401    // [0004] LDI R4, 1     (Start Vy=1)
+8901    // [0005] LDI R9, 1     (Constant 1)
+8A1F    // [0006] LDI R10, 31   (Constant 31, Screen Border)
 
-// ==========================================
-// 2. MAIN LOOP (ANA DÖNGÜ)
-// ==========================================
-
-// --- ADIM 2.1: Eski Pikseli Temizle ---
 2715    // [0007] ADD R7, R1, R5 
 2825    // [0008] ADD R8, R2, R5 
 86F0    // [0009] LDI R6, 240   
@@ -23,37 +15,31 @@ F860    // [000C] STR R8, R6, 0
 86F3    // [000D] LDI R6, 243   
 F560    // [000E] STR R5, R6, 0  
 
-// --- ADIM 2.2: Konumu Güncelle ---
 2113    // [000F] ADD R1, R1, R3 
 2224    // [0010] ADD R2, R2, R4 
 
-// --- ADIM 2.3: X Duvar Kontrolü ---
 301A    // [0011] SUB R0, R1, R10 
-B116    // [0012] BRH 1, 0x16   (If C==1 (X>=31), 0x16'ya Zıpla)
-6015    // [0013] XOR R0, R1, R5 (R1 XOR 0 -> BUG BURADAYDI, DÜZELTİLDİ!)
-B016    // [0014] BRH 0, 0x16   (If Z==1 (X==0), 0x16'ya Zıpla)
+B116    // [0012] BRH 1, 0x16
+6015    // [0013] XOR R0, R1, R5
+B016    // [0014] BRH 0, 0x16
 
-A019    // [0015] JMP 0x19      (Duvara çarpmadıysa Hız Çevirmeyi atla -> 0x19'a zıpla)
+A019    // [0015] JMP 0x19
 
-// --- Vx Hızını Tersine Çevir (-Vx) ---
 8BFF    // [0016] LDI R11, 255
 633B    // [0017] XOR R3, R3, R11
 2339    // [0018] ADD R3, R3, R9 
 
-// --- ADIM 2.4: Y Duvar Kontrolü ---
 302A    // [0019] SUB R0, R2, R10 
-B11E    // [001A] BRH 1, 0x1E   (If C==1 (Y>=31), 0x1E'ye Zıpla)
-6025    // [001B] XOR R0, R2, R5 (R2 XOR 0 -> BUG BURADAYDI, DÜZELTİLDİ!)
-B01E    // [001C] BRH 0, 0x1E   (If Z==1 (Y==0), 0x1E'ye Zıpla)
+B11E    // [001A] BRH 1, 0x1E
+6025    // [001B] XOR R0, R2, R5
+B01E    // [001C] BRH 0, 0x1E
 
-A021    // [001D] JMP 0x21      (Duvara çarpmadıysa Hız Çevirmeyi atla -> 0x21'e zıpla)
+A021    // [001D] JMP 0x21
 
-// --- Vy Hızını Tersine Çevir (-Vy) ---
 8BFF    // [001E] LDI R11, 255
 644B    // [001F] XOR R4, R4, R11
 2449    // [0020] ADD R4, R4, R9
 
-// --- ADIM 2.5: Yeni Pikseli Çiz ve Ekranı Bas ---
 86F0    // [0021] LDI R6, 240
 F160    // [0022] STR R1, R6, 0  
 86F1    // [0023] LDI R6, 241
@@ -64,5 +50,4 @@ F560    // [0026] STR R5, R6, 0
 86F5    // [0027] LDI R6, 245
 F560    // [0028] STR R5, R6, 0  
 
-// --- ADIM 2.6: Döngü Sonu ---
-A007    // [0029] JMP 0x07      (Başa dön)
+A007    // [0029] JMP 0x07

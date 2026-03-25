@@ -9,7 +9,6 @@ module instruction_decoder(
     wire [2:0] parsed_opcode; 
     wire [2:0] type_string;   
 
-    // Örnek isimleri eklendi ve portlar kendi modüllerine göre düzeltildi
     type_decoder td_inst (
         .OPCODE(opcode),
         .TYPE(type_string)        

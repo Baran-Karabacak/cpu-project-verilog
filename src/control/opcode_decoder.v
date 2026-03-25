@@ -10,7 +10,6 @@ module opcode_decoder(
     output [2:0] ALUControSignal
 );
 // First input determines which ALU to use. A=0 First, ALU A=1 second ALU
-// İlk değerelr
 wire A = OPCODE[3];
 wire B = OPCODE[2];
 wire C = OPCODE[1];

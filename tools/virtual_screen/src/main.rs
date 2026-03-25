@@ -81,7 +81,7 @@ fn main() {
         }
     }
     
-    println!("Simülasyon Finished. Press ESC to exit.");
+    println!("Simulation Finished. Press ESC to exit.");
     while window.is_open() && !window.is_key_down(Key::Escape) {
         window.update_with_buffer(&front_buffer, WIDTH, HEIGHT).unwrap();
         std::thread::sleep(Duration::from_millis(16));
