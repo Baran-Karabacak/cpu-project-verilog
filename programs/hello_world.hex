@@ -1,0 +1,20 @@
+// --- HELLO WORLD (MEMORY MAPPED I/O TEST) ---
+
+// Gerekli adres ve harfleri Register'lara yükle
+8F00    // [0000] LDI R15, 0   (Base Adres için Sıfır)
+8148    // [0001] LDI R1, 72   ('H' harfinin ASCII kodu)
+8269    // [0002] LDI R2, 105  ('i' harfinin ASCII kodu)
+8321    // [0003] LDI R3, 33   ('!' harfinin ASCII kodu)
+
+// Harfleri 247 (0xF7) adresine gönder! (STR Data, Base, Offset -> Offset'i tam adres vereceğiz)
+// Not: Dispatcher'ımızda Offset 4 bit olduğu için, doğrudan 247 yazamayız. 
+// Base adresi 247 yapıp, Offset'i 0 vereceğiz!
+
+84F7    // [0004] LDI R4, 247  (I/O Adresi: Write Char)
+
+// STR R1(Data), R4(Base), 0(Offset)
+F140    // [0005] STR R1, R4, 0  (Ekrana 'H' bas!)
+F240    // [0006] STR R2, R4, 0  (Ekrana 'i' bas!)
+F340    // [0007] STR R3, R4, 0  (Ekrana '!' bas!)
+
+1000    // [0008] HLT (Durdur)

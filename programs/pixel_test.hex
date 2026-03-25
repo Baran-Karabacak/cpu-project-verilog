@@ -1,0 +1,24 @@
+// --- DRAW PIXEL TEST ---
+
+8F00    // [0000] LDI R15, 0    (Base Register, hep 0)
+810F    // [0001] LDI R1, 15    (X Koordinatı: 15)
+820F    // [0002] LDI R2, 15    (Y Koordinatı: 15)
+8300    // [0003] LDI R3, 0     (Draw komutu için Dummy Veri)
+
+// 1. Pixel X'i ayarla (Adres: 240 / 0xF0)
+84F0    // [0004] LDI R4, 240
+F140    // [0005] STR R1, R4, 0   -> I/O[240] = 15
+
+// 2. Pixel Y'yi ayarla (Adres: 241 / 0xF1)
+84F1    // [0006] LDI R4, 241
+F240    // [0007] STR R2, R4, 0   -> I/O[241] = 15
+
+// 3. Çizimi Tampona Yap (Draw Pixel - Adres: 242 / 0xF2)
+84F2    // [0008] LDI R4, 242
+F340    // [0009] STR R3, R4, 0   -> I/O[242] = Tetikle
+
+// 4. Tamponu Ekrana Bas (Buffer Screen - Adres: 245 / 0xF5)
+84F5    // [000A] LDI R4, 245
+F340    // [000B] STR R3, R4, 0   -> I/O[245] = Ekrana Gönder
+
+1000    // [000C] HLT
