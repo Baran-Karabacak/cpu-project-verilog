@@ -34,7 +34,7 @@ module cpu_core_tb();
 
         // Let the CPU run for a sufficient amount of time (e.g., 1000 ns)
         // Adjust this time based on how long your hex program is.
-        #1000;
+        #100000;
 
         // Stop the simulation
         $display("INFO: Simulation Time Limit Reached. Shutting down.");

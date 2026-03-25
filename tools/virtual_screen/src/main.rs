@@ -26,40 +26,55 @@ fn main() {
     let mut front_buffer: Vec<u32> = vec![COLOR_BLACK; WIDTH * HEIGHT];
 
     let log_path = "../../build/dashboard_trace.csv";
-    let file = File::open(log_path).expect("Could not found dashboard_trace.csv! First run the Verilog simulation.");
-    let reader = BufReader::new(file);
+    let file = File::open(log_path).expect("Could not find dashboard_trace.csv!");
+    let mut reader = BufReader::new(file);
 
     println!("Virtual Dashboard Started");
 
-    for line in reader.lines() {
+    let mut line = String::new();
+
+    device.needs_render = true;
+
+    loop {
         if !window.is_open() || window.is_key_down(Key::Escape) { break; }
 
-        let line = match line { Ok(l) => l, Err(_) => continue };
-        let parts: Vec<&str> = line.split(',').collect();
-        if parts.len() != 2 { continue; }
+        line.clear();
+        match reader.read_line(&mut line) {
+            Ok(0) => {
+                if device.needs_render {
+                    draw_all(&mut front_buffer, &device);
+                    window.update_with_buffer(&front_buffer, WIDTH, HEIGHT).unwrap();
+                    device.needs_render = false;
+                }
+                std::thread::sleep(Duration::from_millis(10));
+                window.update_with_buffer(&front_buffer, WIDTH, HEIGHT).unwrap();
+                continue;
+            }
+            Ok(_) => {
+                let parts: Vec<&str> = line.split(',').collect();
+                if parts.len() == 2 && let (Ok(addr), Ok(data)) = (parts[0].trim().parse::<u8>(), parts[1].trim().parse::<u8>()) {
+                    device.process_io(addr, data);
+                }
 
-        let addr: u8 = match parts[0].trim().parse() { Ok(val) => val, Err(_) => continue };
-        let data: u8 = match parts[1].trim().parse() { Ok(val) => val, Err(_) => continue };
-
-        device.process_io(addr, data);
-
-        if device.needs_render {
-            render_dashboard(
-                &mut front_buffer,
-                &device.pixel_back_buffer,
-                &device.char_buffer,
-                if device.show_number { Some(device.number_display) } else { None },
-            );
-
-            window.update_with_buffer(&front_buffer, WIDTH, HEIGHT).unwrap();
-            std::thread::sleep(Duration::from_millis(16)); // 60 FPS
-            device.needs_render = false;
+                if device.needs_render {
+                    draw_all(&mut front_buffer, &device);
+                    window.update_with_buffer(&front_buffer, WIDTH, HEIGHT).unwrap();
+                    device.needs_render = false;
+                }
+            }
+            Err(e) => {
+                println!("Error reading line: {}", e);
+                break;
+            }
         }
     }
+}
 
-    println!("Simulation Finished. Press ESC to exit.");
-    while window.is_open() && !window.is_key_down(Key::Escape) {
-        window.update_with_buffer(&front_buffer, WIDTH, HEIGHT).unwrap();
-        std::thread::sleep(Duration::from_millis(16));
-    }
+fn draw_all(buffer: &mut [u32], device: &VirtualDevice) {
+    render_dashboard(
+        buffer,
+        &device.pixel_back_buffer,
+        &device.char_buffer,
+        if device.show_number { Some(device.number_display) } else { None },
+    );
 }
